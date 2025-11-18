@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Touch Java Game</title>
+<script src="https://cjrtnc.leaningtech.com/2.3/loader.js"></script>
+
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #000;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    /* gameArea পুরো স্ক্রিন জুড়ে থাকবে */
+    #gameArea {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        touch-action: none; /* জুম বা স্ক্রল বন্ধ করার জন্য */
+    }
+</style>
+</head>
+
+<body>
+
+<div id="gameArea"></div>
+
+<script>
+    // ১. CheerpJ ইনিশিয়ালাইজ করা
+    cheerpjInit({
+        canvasContainer: "gameArea",
+        enableInputMethods: true // ইনপুট মেথড চালু রাখা
+    });
+
+    // ২. গেম রান করা (পাথ খেয়াল করুন: /app/)
+    // নিশ্চিত করুন আপনার game.jar ফাইলটি html ফাইলের সাথেই আছে।
+    cheerpjRunJar("java.jar");
+
+    // ৩. টাচ কন্ট্রোল ফিক্স
+    const gameContainer = document.getElementById("gameArea");
+
+    function sendMouseEvent(type, x, y) {
+        // CheerpJ সাধারণত একটি canvas তৈরি করে, আমরা ইভেন্টটি সেই ক্যানভাসে পাঠাবো
+        let canvas = document.getElementsByTagName("canvas")[0];
+        
+        if(canvas) {
+            let event = new MouseEvent(type, {
+                clientX: x,
+                clientY: y,
+                bubbles: true,
+                cancelable: true,
+                view: window
+            });
+            canvas.dispatchEvent(event);
+        }
+    }
+
+    gameContainer.addEventListener("touchstart", e => {
+        e.preventDefault(); // ডিফল্ট টাচ অ্যাকশন বন্ধ করা
+        let t = e.touches[0];
+        sendMouseEvent("mousedown", t.clientX, t.clientY);
+    }, {passive: false});
+
+    gameContainer.addEventListener("touchmove", e => {
+        e.preventDefault();
+        let t = e.touches[0];
+        sendMouseEvent("mousemove", t.clientX, t.clientY);
+    }, {passive: false});
+
+    gameContainer.addEventListener("touchend", e => {
+        e.preventDefault();
+        sendMouseEvent("mouseup", 0, 0); // কোঅর্ডিনেট এখানে গুরুত্বপূর্ণ নয়
+    }, {passive: false});
+
+</script>
+
+</body>
+</html>
